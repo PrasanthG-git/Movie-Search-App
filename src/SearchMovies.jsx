@@ -89,7 +89,7 @@ const SearchMovies = () => {
                         : "https://via.placeholder.com/150"
                     }
                     alt={movie.Title}
-                    className="w-full h-48 object-cover"
+                    className="w-full h-auto object-cover"
                   />
                   <div className="p-4">
                     <h2 className="mb-2 font-bold text-lg">{movie.Title}</h2>
