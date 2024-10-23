@@ -5,11 +5,9 @@ import MovieDetail from "./MovieDetail";
 const SearchMovies = () => {
   const [query, setQuery] = useState("");
   const [movies, setMovies] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
   const [selectedMovie, setSelectedMovie] = useState(null);
   const [error, setError] = useState(null);
-  const moviesPerPage = 10;
+  const [movieType, setMovieType] = useState(""); // State for movie type filter
 
   const handleSearch = async (e) => {
     e.preventDefault();
@@ -17,15 +15,13 @@ const SearchMovies = () => {
 
     try {
       const response = await axios.get(
-        `https://www.omdbapi.com/?s=${query}&page=${currentPage}&apikey=83f85b0c`
+        `https://www.omdbapi.com/?s=${query}&type=${movieType}&apikey=83f85b0c`
       );
       if (response.data.Response === "True") {
         setMovies(response.data.Search || []);
-        setTotalPages(Math.ceil(response.data.totalResults / moviesPerPage));
         setError(null);
       } else {
         setMovies([]);
-        setTotalPages(1);
         setError(response.data.Error);
       }
     } catch (err) {
@@ -42,15 +38,6 @@ const SearchMovies = () => {
     setSelectedMovie(null);
   };
 
-  const handlePageChange = (page) => {
-    setCurrentPage(page);
-    handleSearch();
-  };
-
-  useEffect(() => {
-    if (currentPage !== 1) handleSearch();
-  }, [currentPage]);
-
   return (
     <div className="p-4 search-container">
       <form onSubmit={handleSearch} className="flex justify-center mb-4">
@@ -61,6 +48,18 @@ const SearchMovies = () => {
           placeholder="Search for movies..."
           className="border-gray-300 p-2 border rounded-l-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-black"
         />
+
+        {/* Movie Type Filter Dropdown */}
+        <select
+          value={movieType}
+          onChange={(e) => setMovieType(e.target.value)}
+          className="border-gray-300 p-2 border focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-black"
+        >
+          <option value="">All Types</option>
+          <option value="movie">Movies</option>
+          <option value="series">Series</option>
+        </select>
+
         <button
           type="submit"
           className="bg-blue-500 hover:bg-blue-600 p-2 rounded-r-md text-white transition"
@@ -94,7 +93,9 @@ const SearchMovies = () => {
                   />
                   <div className="p-4">
                     <h2 className="mb-2 font-bold text-lg">{movie.Title}</h2>
-                    <p className="text-gray-600 dark:text-white">{movie.Year}</p>
+                    <p className="text-gray-600 dark:text-white">
+                      {movie.Year}
+                    </p>
                   </div>
                 </div>
               ))
@@ -103,23 +104,6 @@ const SearchMovies = () => {
                 No movies found. Try a different search.
               </p>
             )}
-          </div>
-
-          {/* Pagination Controls */}
-          <div className="flex justify-center mt-4">
-            {Array.from({ length: totalPages }, (_, index) => (
-              <button
-                key={index}
-                onClick={() => handlePageChange(index + 1)}
-                className={`mx-1 px-3 py-1 rounded dark:text-black ${
-                  currentPage === index + 1
-                    ? "bg-blue-500 text-white"
-                    : "bg-gray-300"
-                }`}
-              >
-                {index + 1}
-              </button>
-            ))}
           </div>
         </div>
       )}
